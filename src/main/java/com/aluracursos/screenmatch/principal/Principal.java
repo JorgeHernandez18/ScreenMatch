@@ -70,37 +70,41 @@ public class Principal {
         System.out.println("<-------------------------------Top 5 episodios------------------------------->");
         datosEpisodios.stream()
                 .filter(e -> !e.evaluacion().equalsIgnoreCase("N/A"))
+                .peek(e -> System.out.println("Primer filtro (N/A) " + e))
                 .sorted(Comparator.comparing(DatosEpisodio::evaluacion).reversed())
+                .peek(e -> System.out.println("Segundo filtro ordenacion (E>e)" + e))
+                .map(e -> e.titulo().toUpperCase())
+                .peek(e -> System.out.println("Tercer filtro MAYUSCULAS " + e))
                 .limit(5)
                 .forEach(System.out::println);
 
-        System.out.println("Imprimiendo todos los episodios con la temporada");
+        //System.out.println("Imprimiendo todos los episodios con la temporada");
         //Convirtiendo los datos a lista de tipo episodio
         List<Episodio> episodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream()
                         .map(d -> new Episodio(t.numero(),d)))
                 .collect(Collectors.toList());
 
-        episodios.forEach(System.out::println);
+        //episodios.forEach(System.out::println);
 
 
         //Busqueda de episodios a partir de x año
-        System.out.println("Indica el año a partir del cual deseas ver los episodios");
-        var fecha = sc.nextInt();
-        sc.nextLine();
+//        System.out.println("Indica el año a partir del cual deseas ver los episodios");
+//        var fecha = sc.nextInt();
+//        sc.nextLine();
 
-        LocalDate fechaBusqueda = LocalDate.of(fecha, 1, 1);
+        //LocalDate fechaBusqueda = LocalDate.of(fecha, 1, 1);
 
         //Se formatea la fecha para que aparezca de la forma que me guste
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        episodios.stream()
+       /* episodios.stream()
                 .filter(e -> e.getFechaLanzamiento() != null && e.getFechaLanzamiento().isAfter(fechaBusqueda))
                 .forEach(e -> System.out.println(
                         "Temporada " + e.getTemporada() +
                                 " - Episodio " + e.getTitulo() +
                                     " - Fecha lanzamiento " +e.getFechaLanzamiento().format(dtf)
-                ));
+                ));*/
 
     }
 
