@@ -7,6 +7,11 @@ import com.aluracursos.screenmatch.model.Episodio;
 import com.aluracursos.screenmatch.service.ConsumoAPI;
 import com.aluracursos.screenmatch.service.ConvierteDatos;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -25,7 +30,7 @@ public class Principal {
         System.out.println("Escribir el nombre de la serie que desea buscar");
         var nombreSerie = sc.nextLine();
 
-        var json = consumoAPI.obtenerDatos(URL_BASE+ nombreSerie.replace(" ", "+") + API_KEY);
+        var json = consumoAPI.obtenerDatos(URL_BASE+ URLEncoder.encode(nombreSerie, StandardCharsets.UTF_8) + API_KEY);
 
         var datos = conversor.obtenerDatos(json, DatosSerie.class);
 
@@ -62,13 +67,14 @@ public class Principal {
         //Uso el collect(Collectors.toList()) en lugar del toList() porque el toList() me retorna
         //Una lista inmutable, el collect no.
 
-        System.out.println("Top 5 episodios");
+        System.out.println("<-------------------------------Top 5 episodios------------------------------->");
         datosEpisodios.stream()
                 .filter(e -> !e.evaluacion().equalsIgnoreCase("N/A"))
                 .sorted(Comparator.comparing(DatosEpisodio::evaluacion).reversed())
                 .limit(5)
                 .forEach(System.out::println);
 
+        System.out.println("Imprimiendo todos los episodios con la temporada");
         //Convirtiendo los datos a lista de tipo episodio
         List<Episodio> episodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream()
@@ -77,12 +83,31 @@ public class Principal {
 
         episodios.forEach(System.out::println);
 
+
+        //Busqueda de episodios a partir de x año
+        System.out.println("Indica el año a partir del cual deseas ver los episodios");
+        var fecha = sc.nextInt();
+        sc.nextLine();
+
+        LocalDate fechaBusqueda = LocalDate.of(fecha, 1, 1);
+
+        //Se formatea la fecha para que aparezca de la forma que me guste
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        episodios.stream()
+                .filter(e -> e.getFechaLanzamiento() != null && e.getFechaLanzamiento().isAfter(fechaBusqueda))
+                .forEach(e -> System.out.println(
+                        "Temporada " + e.getTemporada() +
+                                " - Episodio " + e.getTitulo() +
+                                    " - Fecha lanzamiento " +e.getFechaLanzamiento().format(dtf)
+                ));
+
     }
 
     public List<DatosTemporada> buscarDatosTemporada(DatosSerie datos, String json, String nombreSerie){
         List<DatosTemporada> temporadas = new ArrayList<>();
         for (int i = 1; i <= datos.totalDeTemporadas(); i++) {
-            json = consumoAPI.obtenerDatos(URL_BASE + nombreSerie.replace(" ", "+") + "&Season="+ i +API_KEY);
+            json = consumoAPI.obtenerDatos(URL_BASE + URLEncoder.encode(nombreSerie, StandardCharsets.UTF_8) + "&Season="+ i +API_KEY);
             var datosTemporada = conversor.obtenerDatos(json, DatosTemporada.class);
             temporadas.add(datosTemporada);
         }

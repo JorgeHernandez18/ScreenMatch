@@ -14,15 +14,16 @@ public class Episodio {
         this.titulo = d.titulo();
         this.temporada = numero;
         this.numeroEpisodio = d.numeroEpisodio();
-        try{
+        try {
             this.evaluacion = Double.valueOf(d.evaluacion());
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             this.evaluacion = 0.0;
         }
-        try{
+        try {
             this.fechaLanzamiento = LocalDate.parse(d.fechaLanzamiento());
-        }catch (DateTimeParseException e){
+        } catch (DateTimeParseException e) {
             this.fechaLanzamiento = null;
+
         }
 
     }
@@ -69,7 +70,7 @@ public class Episodio {
 
     @Override
     public String toString() {
-        return  "temporada=" + temporada +
+        return "temporada=" + temporada +
                 ", titulo='" + titulo + '\'' +
                 ", numeroEpisodio=" + numeroEpisodio +
                 ", evaluacion=" + evaluacion +
