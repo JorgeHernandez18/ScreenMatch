@@ -123,6 +123,16 @@ public class Principal {
                         Collectors.averagingDouble(Episodio::getEvaluacion)));
 
         System.out.println("Evaluaciones por temporada " + evaluacionesPorTemporada);
+
+        //Usamos estadisticas para ver las evaluaciones de los episodios
+        DoubleSummaryStatistics est = episodios.stream()
+                .filter(e -> e.getEvaluacion() > 0.0)
+                .collect(Collectors.summarizingDouble(Episodio::getEvaluacion));
+
+        System.out.println("Media de las evaluaciones: " + est.getAverage());
+        System.out.println("Episodio mejor evaluado: " + est.getMax());
+        System.out.println("Episodio peor evaluado: " + est.getMin());
+
     }
 
     public List<DatosTemporada> buscarDatosTemporada(DatosSerie datos, String json, String nombreSerie){
