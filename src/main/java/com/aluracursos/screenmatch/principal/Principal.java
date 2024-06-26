@@ -1,16 +1,13 @@
 package com.aluracursos.screenmatch.principal;
 
-import com.aluracursos.screenmatch.model.DatosEpisodio;
 import com.aluracursos.screenmatch.model.DatosSerie;
 import com.aluracursos.screenmatch.model.DatosTemporada;
-import com.aluracursos.screenmatch.model.Episodio;
 import com.aluracursos.screenmatch.service.ConsumoAPI;
 import com.aluracursos.screenmatch.service.ConvierteDatos;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Principal {
 
@@ -20,6 +17,8 @@ public class Principal {
     private final String API_KEY = "&apikey=df4de7d6";
     private ConvierteDatos conversor = new ConvierteDatos();
 
+    private List<DatosSerie> datosSeries = new ArrayList<>();
+
     public void mostrarMenu() {
         var opcion = -1;
 
@@ -27,19 +26,23 @@ public class Principal {
             var menu = """
                     1 - Buscar series
                     2 - Buscar episodios
-                                        
+                    3 - Mostrar series buscadas
+                                   
                     0 - salir 
                     """;
-
+            System.out.println(menu);
             opcion = sc.nextInt();
             sc.nextLine();
 
             switch (opcion) {
                 case 1:
-                    buscarSerie();
+                    buscarSerieWeb();
                     break;
                 case 2:
                     buscarEpisodiosPorSerie();
+                    break;
+                case 3:
+                    mostrarSeriesBuscadas();
                     break;
                 case 0:
                     System.out.println("Cerrando aplicación");
@@ -50,7 +53,13 @@ public class Principal {
         }
     }
 
-    private DatosSerie buscarSerie() {
+    private void buscarSerieWeb() {
+        var datos = getDatosSerie();
+        datosSeries.add(datos);
+        System.out.println(datos);
+    }
+
+    private DatosSerie getDatosSerie() {
         System.out.println("Escribir el nombre de la serie que desea buscar");
         var nombreSerie = sc.nextLine();
         var json = consumoAPI.obtenerDatos(URL_BASE + URLEncoder.encode(nombreSerie, StandardCharsets.UTF_8) + API_KEY);
@@ -60,7 +69,7 @@ public class Principal {
     }
 
     public void buscarEpisodiosPorSerie() {
-        var datosSerie = buscarSerie();
+        var datosSerie = getDatosSerie();
         List<DatosTemporada> temporadas = new ArrayList<>();
         try {
             for (int i = 1; i <= datosSerie.totalDeTemporadas(); i++) {
@@ -74,4 +83,16 @@ public class Principal {
         temporadas.forEach(System.out::println);
     }
 
+    private void mostrarSeriesBuscadas() {
+        datosSeries.forEach(System.out::println);
+    }
+
+    public static Categoria fromString(String text){
+        for(Categoria categoria : Categoria.values()){
+            if(categoria.categoriaOmdb.equalsIgnoreCase(text)){
+                return categoria;
+            }
+        }
+        throw new IllegalArgumentException("Ninguna categoria encontrada: " + text);
+    }
 }
