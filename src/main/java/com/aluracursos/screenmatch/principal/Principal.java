@@ -9,7 +9,6 @@ import com.aluracursos.screenmatch.service.ConvierteDatos;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,60 +20,58 @@ public class Principal {
     private final String API_KEY = "&apikey=df4de7d6";
     private ConvierteDatos conversor = new ConvierteDatos();
 
-    public void mostrarMenu(){
-        System.out.println("Escribir el nombre de la serie que desea buscar");
-        var nombreSerie = sc.nextLine();
-        var json = consumoAPI.obtenerDatos(URL_BASE+ URLEncoder.encode(nombreSerie, StandardCharsets.UTF_8) + API_KEY);
-        var datos = conversor.obtenerDatos(json, DatosSerie.class);
+    public void mostrarMenu() {
+        var opcion = -1;
 
+        while (opcion != 0) {
+            var menu = """
+                    1 - Buscar series
+                    2 - Buscar episodios
+                                        
+                    0 - salir 
+                    """;
 
-        System.out.println("Datos de la serie: " + datos);
+            opcion = sc.nextInt();
+            sc.nextLine();
 
-        var temporadas = buscarDatosTemporada(datos, json, nombreSerie);
-
-
-        List<DatosEpisodio> datosEpisodios = temporadas.stream()
-                .flatMap(t -> t.episodios().stream())
-                .collect(Collectors.toList());
-
-        //Convirtiendo los datos a lista de tipo episodio
-        List<Episodio> episodios = temporadas.stream()
-                .flatMap(t -> t.episodios().stream()
-                        .map(d -> new Episodio(t.numero(),d)))
-                .collect(Collectors.toList());
-
-
-        //Agrupando las evaluaciones de cada serie por temporada con el map
-        Map<Integer, Double> evaluacionesPorTemporada = episodios.stream()
-                .filter(e -> e.getEvaluacion() > 0.0)
-                .collect(Collectors.groupingBy(Episodio::getTemporada,
-                        Collectors.averagingDouble(Episodio::getEvaluacion)));
-
-        System.out.println("Evaluaciones por temporada " + evaluacionesPorTemporada);
-
-        //Usamos estadisticas para ver las evaluaciones de los episodios
-        DoubleSummaryStatistics est = episodios.stream()
-                .filter(e -> e.getEvaluacion() > 0.0)
-                .collect(Collectors.summarizingDouble(Episodio::getEvaluacion));
-
-        System.out.println("Media de las evaluaciones: " + est.getAverage());
-        System.out.println("Episodio mejor evaluado: " + est.getMax());
-        System.out.println("Episodio peor evaluado: " + est.getMin());
-
+            switch (opcion) {
+                case 1:
+                    buscarSerie();
+                    break;
+                case 2:
+                    buscarEpisodiosPorSerie();
+                    break;
+                case 0:
+                    System.out.println("Cerrando aplicación");
+                    break;
+                default:
+                    System.out.println("Opción invalida");
+            }
+        }
     }
 
-    public List<DatosTemporada> buscarDatosTemporada(DatosSerie datos, String json, String nombreSerie){
+    private DatosSerie buscarSerie() {
+        System.out.println("Escribir el nombre de la serie que desea buscar");
+        var nombreSerie = sc.nextLine();
+        var json = consumoAPI.obtenerDatos(URL_BASE + URLEncoder.encode(nombreSerie, StandardCharsets.UTF_8) + API_KEY);
+        var datos = conversor.obtenerDatos(json, DatosSerie.class);
+
+        return datos;
+    }
+
+    public void buscarEpisodiosPorSerie() {
+        var datosSerie = buscarSerie();
         List<DatosTemporada> temporadas = new ArrayList<>();
-        try{
-            for (int i = 1; i <= datos.totalDeTemporadas(); i++) {
-                json = consumoAPI.obtenerDatos(URL_BASE + URLEncoder.encode(nombreSerie, StandardCharsets.UTF_8) + "&Season="+ i +API_KEY);
+        try {
+            for (int i = 1; i <= datosSerie.totalDeTemporadas(); i++) {
+                var json = consumoAPI.obtenerDatos(URL_BASE + URLEncoder.encode(datosSerie.titulo(), StandardCharsets.UTF_8) + "&Season=" + i + API_KEY);
                 var datosTemporada = conversor.obtenerDatos(json, DatosTemporada.class);
                 temporadas.add(datosTemporada);
             }
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             System.out.println("Error de serie: " + e.getMessage());
         }
-        return temporadas;
+        temporadas.forEach(System.out::println);
     }
 
 }
