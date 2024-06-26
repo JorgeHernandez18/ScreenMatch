@@ -19,8 +19,8 @@ public class Principal {
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private final String URL_BASE = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=df4de7d6";
-
     private ConvierteDatos conversor = new ConvierteDatos();
+
     public void mostrarMenu(){
         System.out.println("Escribir el nombre de la serie que desea buscar");
         var nombreSerie = sc.nextLine();
@@ -91,7 +91,7 @@ public class Principal {
         //LocalDate fechaBusqueda = LocalDate.of(fecha, 1, 1);
 
         //Se formatea la fecha para que aparezca de la forma que me guste
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
        /* episodios.stream()
                 .filter(e -> e.getFechaLanzamiento() != null && e.getFechaLanzamiento().isAfter(fechaBusqueda))
