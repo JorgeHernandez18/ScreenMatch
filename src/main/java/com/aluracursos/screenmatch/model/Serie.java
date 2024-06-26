@@ -1,5 +1,6 @@
 package com.aluracursos.screenmatch.model;
 
+import com.aluracursos.screenmatch.service.TranslateAPI;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class Serie {
         this.totalDeTemporadas = datosSerie.totalDeTemporadas();
         this.evaluacion = OptionalDouble.of(Double.valueOf(datosSerie.evaluacion())).orElse(0);
         this.genero = Categoria.fromString(datosSerie.genero().split(",")[0].trim());
-        this.sinopsis = datosSerie.sinopsis();
+        this.sinopsis = TranslateAPI.traducir(datosSerie.sinopsis());
         this.poster = datosSerie.poster();
         this.actores = datosSerie.actores();
     }
