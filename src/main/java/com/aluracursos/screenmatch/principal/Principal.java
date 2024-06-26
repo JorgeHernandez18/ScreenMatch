@@ -33,88 +33,16 @@ public class Principal {
         var temporadas = buscarDatosTemporada(datos, json, nombreSerie);
 
 
-        //Imprimo con un forEach la lista de DatosTemporada e imprimo solo los titulos de los episodios
-        /*
-        * temporadas.forEach(
-                t -> t.episodios()
-                        .forEach(e -> System.out.println(e.titulo()))
-        );
-        * */
-
-        /*
-        * Con la expresión lambda t -> t.episodios()
-                        .forEach(e -> System.out.println(e.titulo()))
-        * Estoy ahorrandome de hacer el siguiente codigo:
-        * for(int i = 0; i < datos.totalTemporadas(); i++){
-        *   List<DatosEpisodio> episodiosTemporada = temporadas.get(i).episodios();
-        *   for(int j = 0; j < episodiosTemporada.size(); j++){
-        *       System.out.println(episodiosTemporada.get(j).titulo());
-        *   }
-        * }
-        *
-        * ¡IMPRESIONANTE!
-        * */
-
-
         List<DatosEpisodio> datosEpisodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream())
                 .collect(Collectors.toList());
-        //Uso el collect(Collectors.toList()) en lugar del toList() porque el toList() me retorna
-        //Una lista inmutable, el collect no.
 
-//        System.out.println("<-------------------------------Top 5 episodios------------------------------->");
-//        datosEpisodios.stream()
-//                .filter(e -> !e.evaluacion().equalsIgnoreCase("N/A"))
-//                .peek(e -> System.out.println("Primer filtro (N/A) " + e))
-//                .sorted(Comparator.comparing(DatosEpisodio::evaluacion).reversed())
-//                .peek(e -> System.out.println("Segundo filtro ordenacion (E>e)" + e))
-//                .map(e -> e.titulo().toUpperCase())
-//                .peek(e -> System.out.println("Tercer filtro MAYUSCULAS " + e))
-//                .limit(5)
-//                .forEach(System.out::println);
-
-        //System.out.println("Imprimiendo todos los episodios con la temporada");
         //Convirtiendo los datos a lista de tipo episodio
         List<Episodio> episodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream()
                         .map(d -> new Episodio(t.numero(),d)))
                 .collect(Collectors.toList());
 
-        //episodios.forEach(System.out::println);
-
-
-        //Busqueda de episodios a partir de x año
-//        System.out.println("Indica el año a partir del cual deseas ver los episodios");
-//        var fecha = sc.nextInt();
-//        sc.nextLine();
-
-        //LocalDate fechaBusqueda = LocalDate.of(fecha, 1, 1);
-
-        //Se formatea la fecha para que aparezca de la forma que me guste
-        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-       /* episodios.stream()
-                .filter(e -> e.getFechaLanzamiento() != null && e.getFechaLanzamiento().isAfter(fechaBusqueda))
-                .forEach(e -> System.out.println(
-                        "Temporada " + e.getTemporada() +
-                                " - Episodio " + e.getTitulo() +
-                                    " - Fecha lanzamiento " +e.getFechaLanzamiento().format(dtf)
-                ));*/
-
-        //Busca episodios por pedazo de titulo
-
-        /*System.out.println("Escribe el pedazo de titulo que conoces");
-        var pedazo = sc.nextLine();
-
-        Optional<Episodio> episodioBuscado = episodios.stream()
-                .filter(e -> e.getTitulo().toUpperCase().contains(pedazo.toUpperCase()))
-                .findFirst();
-
-        if(episodioBuscado.isPresent()){
-            System.out.println("El episodio es: " + episodioBuscado.get());
-        } else {
-            System.out.println("Episodio no encontrado");
-        }*/
 
         //Agrupando las evaluaciones de cada serie por temporada con el map
         Map<Integer, Double> evaluacionesPorTemporada = episodios.stream()
