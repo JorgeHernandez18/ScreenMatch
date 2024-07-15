@@ -2,27 +2,58 @@ package com.aluracursos.screenmatch.model;
 
 import com.aluracursos.screenmatch.service.TranslateAPI;
 import com.fasterxml.jackson.annotation.JsonAlias;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
-
+@Entity
+@Table(name = "series")
 public class Serie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
     private String titulo;
     private Integer totalDeTemporadas;
     private Double evaluacion;
+    @Enumerated(EnumType.STRING)
     private Categoria genero;
     private String sinopsis;
     private String poster;
     private String actores;
+    @Transient
+    private List<Episodio> episodios = new ArrayList<>();
 
+
+    public Serie() {
+
+    }
     public Serie(DatosSerie datosSerie) {
         this.titulo = datosSerie.titulo();
         this.totalDeTemporadas = datosSerie.totalDeTemporadas();
         this.evaluacion = OptionalDouble.of(Double.valueOf(datosSerie.evaluacion())).orElse(0);
         this.genero = Categoria.fromString(datosSerie.genero().split(",")[0].trim());
-        this.sinopsis = TranslateAPI.traducir(datosSerie.sinopsis());
+        this.sinopsis = datosSerie.sinopsis();
         this.poster = datosSerie.poster();
         this.actores = datosSerie.actores();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        this.episodios = episodios;
     }
 
     public String getTitulo() {

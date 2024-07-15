@@ -3,6 +3,7 @@ package com.aluracursos.screenmatch.principal;
 import com.aluracursos.screenmatch.model.DatosSerie;
 import com.aluracursos.screenmatch.model.DatosTemporada;
 import com.aluracursos.screenmatch.model.Serie;
+import com.aluracursos.screenmatch.repository.SerieRepository;
 import com.aluracursos.screenmatch.service.ConsumoAPI;
 import com.aluracursos.screenmatch.service.ConvierteDatos;
 
@@ -20,6 +21,11 @@ public class Principal {
     private ConvierteDatos conversor = new ConvierteDatos();
 
     private List<DatosSerie> datosSeries = new ArrayList<>();
+    private SerieRepository repositorio;
+
+    public Principal(SerieRepository repository) {
+        this.repositorio = repository;
+    }
 
     public void mostrarMenu() {
         var opcion = -1;
@@ -57,7 +63,8 @@ public class Principal {
 
     private void buscarSerieWeb() {
         var datos = getDatosSerie();
-        datosSeries.add(datos);
+        Serie serie = new Serie(datos);
+        repositorio.save(serie);
         System.out.println(datos);
     }
 
@@ -86,11 +93,7 @@ public class Principal {
     }
 
     private void mostrarSeriesBuscadas() {
-        List<Serie> series = new ArrayList<>();
-        series = datosSeries.stream()
-                .map(d -> new Serie(d))
-                .collect(Collectors.toList());
-
+        List<Serie> series = repositorio.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
                 .forEach(System.out::println);
